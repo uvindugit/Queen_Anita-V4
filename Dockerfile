@@ -1,20 +1,22 @@
-# Use an official Node.js image as the base
-FROM node:16-alpine
+FROM node:lts-buster
 
-# Set the working directory in the container
-WORKDIR /app
+RUN apt-get update && \
+  apt-get install -y \
+  ffmpeg \
+  imagemagick \
+  webp && \
+  apt-get upgrade -y && \
+  npm i pm2 -g && \
+  rm -rf /var/lib/apt/lists/*
+  
+COPY package.json .
 
-# Copy the package.json and package-lock.json files
-COPY package.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm install pm2 -g
+RUN npm install --legacy-peer-deps
 
-# Copy the rest of the application files
 COPY . .
 
-# Expose the port the app runs on (if any)
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "index.js"]
+CMD ["node","index.js" ]
